@@ -240,7 +240,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 {
 	//update camera aspect ratio for drawable:
 	/*camera->aspect = float(drawable_size.x) / float(drawable_size.y);
-
 	//set up light type and position for lit_color_texture_program:
 	// TODO: consider using the Light(s) in the scene to do this
 	glUseProgram(lit_color_texture_program->program);
@@ -248,16 +247,12 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	glUniform3fv(lit_color_texture_program->LIGHT_DIRECTION_vec3, 1, glm::value_ptr(glm::vec3(0.0f, 0.0f, -1.0f)));
 	glUniform3fv(lit_color_texture_program->LIGHT_ENERGY_vec3, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 0.95f)));
 	glUseProgram(0);
-
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClearDepth(1.0f); //1.0 is actually the default value to clear the depth buffer to, but FYI you can change it.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS); //this is the default depth comparison function, but FYI you can change it.
-
 	scene.draw(*camera);
-
 	{ //use DrawLines to overlay some text:
 		glDisable(GL_DEPTH_TEST);
 		float aspect = float(drawable_size.x) / float(drawable_size.y);
@@ -266,7 +261,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 			0.0f, 1.0f, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 0.0f,
 			0.0f, 0.0f, 0.0f, 1.0f));
-
 		constexpr float H = 0.09f;
 		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
 						glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
