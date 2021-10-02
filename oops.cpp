@@ -93,7 +93,7 @@ State north_room_1F{
     "You pushed the door and found it ...... broken and crashed into fragments on the floor"
     "A nice artistic portrait of some ...... king is in front of you. He is on a horse, using a long sword cutting through the throat of evil enemy"
     "his soldiers are motivated by this greatly and start to fight as well, even if the enemies are strong."
-    "Now on the left side of the portrait"
+    "Now on the left side of the portrait "
 };
 
 State middle_state_1F{
