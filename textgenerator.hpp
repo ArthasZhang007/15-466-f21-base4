@@ -17,7 +17,7 @@
 #include <map>
 #include <vector>
 
-#define FONT_SIZE 100
+
 struct Glyph
 {
     GLuint id;

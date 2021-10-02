@@ -1,11 +1,13 @@
 #include "textgenerator.hpp"
-#include <iostream>
 
+#include <fstream>
+#include <iostream>
+#define FONT_SIZE 25
 textgenerator::textgenerator() = default;
-textgenerator::~textgenerator() 
-{ 
+textgenerator::~textgenerator()
+{
 	FT_Done_Face(ft_face);
-	cleanup(); 
+	cleanup();
 }
 void textgenerator::cleanup()
 {
@@ -29,47 +31,19 @@ void textgenerator::cleanup()
 void textgenerator::load_font(std::string filename)
 {
 	FT_Init_FreeType(&ft_library);
-	FT_New_Face(ft_library, filename.c_str(), 0, &ft_face);
-	FT_Set_Char_Size(ft_face, FONT_SIZE * 64, FONT_SIZE * 64, 0, 0);
-	blob = hb_blob_create_from_file(filename.c_str()); /* or hb_blob_create_from_file_or_fail() */
-	face = hb_face_create(blob, 0);
-	font = hb_font_create(face);
-
-	/*for (tchar_t c = 0; c < 255; c++)
+	auto error = FT_New_Face(ft_library, filename.c_str(), 0, &ft_face);
+	if (error)
 	{
-		auto error = FT_Load_Char(ft_face, c, FT_LOAD_RENDER);
-		if (error)
-		{
-			std::cout << "Fail to load Glyph for: " << c << std::endl;
-			continue;
-		}
+		std::cout << "not able to load new face\n";
+	}
+	FT_Set_Char_Size(ft_face, FONT_SIZE * 64, FONT_SIZE * 64, 0, 0);
 
-		GLuint texture;
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			GL_RED,
-			ft_face->glyph->bitmap.width,
-			ft_face->glyph->bitmap.rows,
-			0,
-			GL_RED,
-			GL_UNSIGNED_BYTE,
-			ft_face->glyph->bitmap.buffer);
+	//blob = hb_blob_create_from_file(filename.c_str()); /* or hb_blob_create_from_file_or_fail() */
+	//face = hb_face_create(blob, 0);
+	//font = hb_font_create(face);
+	font = hb_ft_font_create(ft_face, NULL);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		// store into the map
-		Glyph glyph = {
-			texture,
-			glm::ivec2(ft_face->glyph->bitmap.width, ft_face->glyph->bitmap.rows),
-			glm::ivec2(ft_face->glyph->bitmap_left, ft_face->glyph->bitmap_top),
-		};
-		Glyph_dict[c] = glyph;
-	}*/
+	buf = hb_buffer_create();
 }
 void textgenerator::draw_glyph(hb_codepoint_t glyphid, hb_position_t x, hb_position_t y)
 {
@@ -79,7 +53,7 @@ void textgenerator::draw_glyph(hb_codepoint_t glyphid, hb_position_t x, hb_posit
 void textgenerator::reshape(std::string text, glm::vec2 pos, glm::vec3 color, double line)
 {
 
-	buf = hb_buffer_create();
+	hb_buffer_reset(buf);
 	hb_buffer_add_utf8(buf, text.c_str(), -1, 0, -1);
 
 	hb_buffer_set_direction(buf, HB_DIRECTION_LTR);
@@ -91,52 +65,51 @@ void textgenerator::reshape(std::string text, glm::vec2 pos, glm::vec3 color, do
 	uint32_t glyph_count;
 	glyph_info = hb_buffer_get_glyph_infos(buf, &glyph_count);
 	glyph_pos = hb_buffer_get_glyph_positions(buf, &glyph_count);
+	//std::cout<<glyph_count<<std::endl;
+	for (size_t i = 0; i < glyph_count; ++i)
+	{
 
-    for (size_t i = 0; i < glyph_count; ++i) {
+		auto glyphid = glyph_info[i].codepoint;
+		double x_offset = glyph_pos[i].x_offset / 64.0;
+		double y_offset = glyph_pos[i].y_offset / 64.0;
+		double x_advance = glyph_pos[i].x_advance / 64.0;
+		double y_advance = glyph_pos[i].y_advance / 64.0;
 
-        auto glyphid = glyph_info[i].codepoint;
-        double x_offset = glyph_pos[i].x_offset / 64.0;
-        double y_offset = glyph_pos[i].y_offset / 64.0;
-        double x_advance = glyph_pos[i].x_advance / 64.0;
-        double y_advance = glyph_pos[i].y_advance / 64.0;
-
-        if (FT_Load_Glyph(ft_face, glyphid, FT_LOAD_DEFAULT))
-            std::cout << "Load glyph error" << std::endl;
-        if (FT_Render_Glyph(ft_face->glyph, FT_RENDER_MODE_NORMAL))
+		if (FT_Load_Glyph(ft_face, glyphid, FT_LOAD_DEFAULT))
+			std::cout << "Load glyph error" << std::endl;
+		if (FT_Render_Glyph(ft_face->glyph, FT_RENDER_MODE_NORMAL))
 			std::cout << "Render error" << std::endl;
-        int w = ft_face->glyph->bitmap.width;
-        int h = ft_face->glyph->bitmap.rows;
+		int w = ft_face->glyph->bitmap.width;
+		int h = ft_face->glyph->bitmap.rows;
 
-        float l = (float) ft_face->glyph->bitmap_left;
-        float t = (float) ft_face->glyph->bitmap_top;
+		float l = (float)ft_face->glyph->bitmap_left;
+		float t = (float)ft_face->glyph->bitmap_top;
 
-		//glUseProgram(1);
-        //(color_texture_program->program);
+		//glUseProgram(color_texture_program->program);
 
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        GLuint texture;
-        glGenTextures(1, &texture);
+		GLuint texture;
+		glGenTextures(1, &texture);
 
-        glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			ft_face->glyph->bitmap.width,
+			ft_face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			ft_face->glyph->bitmap.buffer);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(
-                GL_TEXTURE_2D,
-                0,
-                GL_RGBA,
-                ft_face->glyph->bitmap.width,
-                ft_face->glyph->bitmap.rows,
-                0,
-                GL_RED,
-                GL_UNSIGNED_BYTE,
-                ft_face->glyph->bitmap.buffer
-        );
-        glBindTexture(GL_TEXTURE_2D, 0);
-		characters.push_back({(int)texture, w, h, line, pos.x, pos.y, l,t, (float)x_offset, (float)y_offset, (float)x_advance, (float)y_advance, color.x, color.y, color.z});
+		glBindTexture(GL_TEXTURE_2D, 0);
+		characters.push_back({(int)texture, w, h, line, pos.x, pos.y, l, t, (float)x_offset, (float)y_offset, (float)x_advance, (float)y_advance, color.x, color.y, color.z});
 	}
 }
 /*int main(int argc, char **argv)
