@@ -3,11 +3,12 @@
 #include "Scene.hpp"
 #include "Sound.hpp"
 
+#include "GL.hpp"
 #include <glm/glm.hpp>
 
 #include <vector>
 #include <deque>
-
+#include "textgenerator.hpp"
 struct PlayMode : Mode {
 	PlayMode();
 	virtual ~PlayMode();
@@ -44,5 +45,5 @@ struct PlayMode : Mode {
 	
 	//camera:
 	Scene::Camera *camera = nullptr;
-
+	textgenerator text_generator;
 };
