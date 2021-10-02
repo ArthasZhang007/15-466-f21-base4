@@ -24,6 +24,28 @@ static Load<void> init_buffers(LoadTagDefault, []() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 });
+GLuint hexapod_meshes_for_lit_color_texture_program = 0;
+Load<MeshBuffer> hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
+	MeshBuffer const *ret = new MeshBuffer(data_path("hexapod.pnct"));
+	hexapod_meshes_for_lit_color_texture_program = ret->make_vao_for_program(lit_color_texture_program->program);
+	return ret;
+});
+
+Load<Scene> hexapod_scene(LoadTagDefault, []() -> Scene const * {
+	return new Scene(data_path("hexapod.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name) {
+		Mesh const &mesh = hexapod_meshes->lookup(mesh_name);
+
+		scene.drawables.emplace_back(transform);
+		Scene::Drawable &drawable = scene.drawables.back();
+
+		drawable.pipeline = lit_color_texture_program_pipeline;
+
+		drawable.pipeline.vao = hexapod_meshes_for_lit_color_texture_program;
+		drawable.pipeline.type = mesh.type;
+		drawable.pipeline.start = mesh.start;
+		drawable.pipeline.count = mesh.count;
+	});
+});
 
 Load<Sound::Sample> dusty_floor_sample(LoadTagDefault, []() -> Sound::Sample const * {
 	return new Sound::Sample(data_path("dusty-floor.opus"));
@@ -33,7 +55,7 @@ PlayMode::PlayMode() : scene(*hexapod_scene)
 {
 	//text_generator
 	text_generator.load_font(data_path("times_new_roman.ttf"));
-	text_generator.reshape("Graphics is the best class", glm::vec2(1.9,1.9), glm::vec3(0.7, 0.2, 0.3 ), 0);
+	text_generator.reshape("Graphics is the best class", glm::vec2(1.0,1.0), glm::vec3(0.7, 0.2, 0.3 ), 0);
 
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms)
@@ -246,6 +268,8 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	{
 		textgenerator::Character c = text_generator.characters[i];
 		glUniform3f(glGetUniformLocation(color_texture_program->program, "textColor"), c.red, c.green, c.blue);
+		//printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
+		//printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
 		if (c.line != line)
 		{
 			cursor_x = drawable_size.x / 2.0f * c.start_x;
