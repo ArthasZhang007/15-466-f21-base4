@@ -8,21 +8,22 @@
 #include "gl_errors.hpp"
 #include "data_path.hpp"
 
+
 #include <glm/gtc/type_ptr.hpp>
 
 #include <random>
 
 GLuint VAO, VBO;
-static Load<void> init_buffers(LoadTagDefault, []() {
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+static Load< void > setup_buffers(LoadTagDefault, []() {
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 });
 GLuint hexapod_meshes_for_lit_color_texture_program = 0;
 Load<MeshBuffer> hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
@@ -54,8 +55,8 @@ Load<Sound::Sample> dusty_floor_sample(LoadTagDefault, []() -> Sound::Sample con
 PlayMode::PlayMode() : scene(*hexapod_scene)
 {
 	//text_generator
-	text_generator.load_font(data_path("times_new_roman.ttf"));
-	text_generator.reshape("Graphics is the best class", glm::vec2(1.0,1.0), glm::vec3(0.7, 0.2, 0.3 ), 0);
+	text_generator.load_font(data_path("ArialCE.ttf"));
+	text_generator.reshape("databasexxxxs", glm::vec2(0,0), glm::vec3(1,1,1), 0);
 
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms)
@@ -237,13 +238,48 @@ void PlayMode::update(float elapsed)
 
 void PlayMode::draw(glm::uvec2 const &drawable_size)
 {
+	//update camera aspect ratio for drawable:
+	/*camera->aspect = float(drawable_size.x) / float(drawable_size.y);
+	//set up light type and position for lit_color_texture_program:
+	// TODO: consider using the Light(s) in the scene to do this
+	glUseProgram(lit_color_texture_program->program);
+	glUniform1i(lit_color_texture_program->LIGHT_TYPE_int, 1);
+	glUniform3fv(lit_color_texture_program->LIGHT_DIRECTION_vec3, 1, glm::value_ptr(glm::vec3(0.0f, 0.0f, -1.0f)));
+	glUniform3fv(lit_color_texture_program->LIGHT_ENERGY_vec3, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 0.95f)));
+	glUseProgram(0);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClearDepth(1.0f); //1.0 is actually the default value to clear the depth buffer to, but FYI you can change it.
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS); //this is the default depth comparison function, but FYI you can change it.
+	scene.draw(*camera);
+	{ //use DrawLines to overlay some text:
+		glDisable(GL_DEPTH_TEST);
+		float aspect = float(drawable_size.x) / float(drawable_size.y);
+		DrawLines lines(glm::mat4(
+			1.0f / aspect, 0.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f));
+		constexpr float H = 0.09f;
+		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
+						glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
+						glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+						glm::u8vec4(0x00, 0x00, 0x00, 0x00));
+		float ofs = 2.0f / drawable_size.y;
+		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
+						glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + +0.1f * H + ofs, 0.0),
+						glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+						glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+	}
+	GL_ERRORS();*/
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
 	// DRAW
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClearDepth(1.0f); //1.0 is actually the default value to clear the depth buffer to, but FYI you can change it.
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.2f, 0.2f, 0.2f, 0.6f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Draw
 	// start position
@@ -251,25 +287,22 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	float cursor_x = 0;
 	float cursor_y = 0;
 	double line = -1;
-
-	glUseProgram(color_texture_program->program);
-
-
-	glm::mat4 proj = glm::ortho(0.0f, (float)drawable_size.x, 0.0f, (float)drawable_size.y);
-	glUniformMatrix4fv(
-			color_texture_program->OBJECT_TO_CLIP_mat4,
-			1,
-			GL_FALSE,
-			glm::value_ptr(proj)
-	);
-	glBindVertexArray(VAO);
-
+	//printf("start\n");
 	for (size_t i = 0; i < text_generator.characters.size(); ++i)
 	{
 		textgenerator::Character c = text_generator.characters[i];
+		printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
+		printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
+		glm::mat4 to_clip = glm::mat4( 
+			1 * 2.0f / float(drawable_size.x), 0.0f, 0.0f, 0.0f,
+			0.0f, 1 * 2.0f / float(drawable_size.y), 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			2.0f / float(drawable_size.x), 2.0f / float(drawable_size.y), 0.0f, 1.0f);
+		glUseProgram(color_texture_program->program);
 		glUniform3f(glGetUniformLocation(color_texture_program->program, "textColor"), c.red, c.green, c.blue);
-		//printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
-		//printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
+		glUniformMatrix4fv(color_texture_program->OBJECT_TO_CLIP_mat4, 1, GL_FALSE, glm::value_ptr(to_clip));
+		glBindVertexArray(VAO);
+
 		if (c.line != line)
 		{
 			cursor_x = drawable_size.x / 2.0f * c.start_x;
@@ -306,6 +339,7 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	glUseProgram(0);
 
 	GL_ERRORS();
+
 }
 
 glm::vec3 PlayMode::get_leg_tip_position()
