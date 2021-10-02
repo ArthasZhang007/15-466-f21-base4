@@ -20,10 +20,21 @@ public:
     };
     std::vector<Choices> choices;
     size_t current_choice = 0;
+
     //last choice 
     void pushup(){current_choice = (current_choice + choices.size() - 1) % choices.size();}
     //next choice
     void pushdown(){current_choice = (current_choice + 1) % choices.size();}
+    //actually choose (current)
+    State choose(atr_type &atr){
+        return choices[current_choice].trans(atr);
+    }
+    //actually choose (indexing)
+    State choose(atr_type &atr, size_t i){
+        //assert(i >= 0);
+        //assert(i < choices.size());
+        return choices[i].trans(atr);
+    }
 };
 ostream &operator <<(ostream &os, State S){
     os << "Q : " << S.description << std::endl;
@@ -41,40 +52,51 @@ void init(){
     };
     State lose_state{ "You lose!!!!"
     };
-    auto win = [&](atr_type &atr){
-        return win_state;
-    };
-    auto lose = [&](atr_type &atr){
-        return lose_state;
-    };
     State init_state{"To be or not to be?", 
         {
             {
                 "fight the demon",
-                win
+                [&](atr_type &atr){
+                    if(atr["power"] == "powerful"){
+                        std::cout<<"great!\n"; //力大砖飞！
+                        return win_state;
+                    }
+                    std::cout<<"lack of power!\n"; //没有力量
+                    return lose_state;
+                }
             },
             {
                 "commit suicide",
-                lose
+                [&](atr_type &atr){
+                    return lose_state;
+                }
             },
             {
                 "quit the game"
             }
         }
     };
-    State istate = init_state;
-//std::cout<<init_state<<std::endl;
+    State istate;
     atr_type m;
-    m.clear();
-
-    //main loop
-    while(!istate.choices.empty()){
+    istate = init_state;
+    m["power"] = "powerful";
+    while(true)
+    {
         std::cout<<istate<<std::endl;
-        State next_state = istate.choices[0].trans(m);
-        std::cout<<next_state<<std::endl;
+        if(istate.choices.empty())break;
+        State next_state = istate.choose(m);
         istate = next_state;
     }
-    //init_state.pushdown();
+
+    istate = init_state;
+    m.clear();
+    while(true)
+    {
+        std::cout<<istate<<std::endl;
+        if(istate.choices.empty())break;
+        State next_state = istate.choose(m);
+        istate = next_state;
+    }
     
 }
 int main(){
