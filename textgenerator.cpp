@@ -141,7 +141,7 @@ void textgenerator::println(std::string &line, glm::vec2 pos, double line_num, g
 	for (std::string &s : lines) {
 		this->reshape(s, pos, color, line_num);
 		// std::cout << s << "\n";
-		line_num += 0.6;
+		line_num += 0.25;
 	}
 }
 
