@@ -74,7 +74,7 @@ PlayMode::PlayMode() : scene(*hexapod_scene)
 	std::string instruction = "Press SPACE to continue and make choices in the game...";
 	menu_generator.println(instruction, glm::vec2(-0.7,-0),3);
 	game.state_init();
-	currState = &game.middle_state_1F;
+	currState = game.middle_state_1F;
 
 	//get pointer to camera for convenience:
 	if (scene.cameras.size() != 1)
@@ -196,13 +196,15 @@ void PlayMode::update(float elapsed)
 		std::cout << currState->current_choice << "\n";
 
 	}
-	if (space.pressed) {
-		cout << "update: enter" << "\n";
-		State nextState = (currState->choose(m));
-		std::cout<<nextState;
-		if (nextState.description != "id") {
-			currState = &nextState;
+	if (enter.pressed) {
+		//std::cout<<*currState<<' '<<currState->current_choice ;
+		//std::cout<<"fuck"<<std::endl;
+		State* nextState = (currState->choose(m));
+		
+		if (nextState->description != "id") {
+			currState = nextState;
 		}
+		std::cout<<*currState;
 	}
 	if (!startup) {
 		text_generator.println(currState->description, glm::vec2(-0.9,0.8));
@@ -243,8 +245,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	if (startup) {
 		for (size_t i = 0; i < menu_generator.characters.size(); ++i) {
 			textgenerator::Character c = menu_generator.characters[i];
-			// printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
-			// printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
 			glm::mat4 to_clip = glm::mat4( 
 				1 * 2.0f / float(drawable_size.x), 0.0f, 0.0f, 0.0f,
 				0.0f, 1 * 2.0f / float(drawable_size.y), 0.0f, 0.0f,

@@ -1,20 +1,26 @@
 #include "Story.hpp"
 
 void Story::state_init() {
-    good_endding = {
+    id_state = new State
+    {
+        "id"
+    };
+    good_endding = new State
+        {
             "FREEDOM! YOU WIN!"
         };
-        game_over = {
-            "Game is over, try again!",
-            {{
-                "Restart!",
-                [this](atr_type &atr){
-                    atr.clear();
-                    return start_state;
-                }
-            }}
-        };
-        bad_endding[1] = {
+    game_over = new State 
+    {
+        "Game is over, try again!",
+        {{
+            "Restart!",
+            [this](atr_type &atr){
+                atr.clear();
+                return start_state;
+            }
+        }}
+    };
+        bad_endding[1] = new State{
             "After trembling for hours in the freezing unknown place...... you are frozen to death."
             ,
             {{
@@ -22,7 +28,7 @@ void Story::state_init() {
                 [this](atr_type &atr){return game_over;}
             }}
         };
-        bad_endding[2] = {
+        bad_endding[2] = new State{
             "A sharp sword comes from the mirror and cut through your throat!"
             ,
             {{
@@ -30,7 +36,7 @@ void Story::state_init() {
                 [this](atr_type &atr){return game_over;}
             }}
         };
-        bad_endding[3] = {
+        bad_endding[3] = new State{
             "The chest opens, and it swallows you!"
             ,
             {{
@@ -38,7 +44,7 @@ void Story::state_init() {
                 [this](atr_type &atr){return game_over;}
             }}
         };
-        bad_endding[4] = {
+        bad_endding[4] = new State{
             "The chef locks your hand forcibly, 'IT IS A NICE HAND INDEED!', you hand is ripped off and you are bleed to death."
             ,
             {{
@@ -46,9 +52,9 @@ void Story::state_init() {
                 [this](atr_type &atr){return game_over;}
             }}
         };
-        start_state = {
+        start_state = new State{
             "You wake up from a long dream, it feels like a million year has passed. "
-            "Everything around you is pure darkness"
+            "Everything around you is pure darkness. "
             "Now you feel a warm thing in your hand..... it seems like a button, do you want to push it?"
             ,
             {
@@ -63,7 +69,7 @@ void Story::state_init() {
                 }
             }
         };
-        middle_state_1F = {
+        middle_state_1F = new State{
             "Suddenly, multiple electric lights are on.... actually, wait. These are just kerosene lamps."
             "That's why the room is still so dim. Is this a mansion? prison? paradise? British classroom?"
             "You have absolutely no clue. The only thing you can see is that there are 8 doors around you, in 0', 45', 90' 135' 180' 225' "
@@ -130,7 +136,7 @@ void Story::state_init() {
             }
         };
 
-        north_room_1F = {
+        north_room_1F = new State {
             "You pushed the door and found it ...... broken and crashed into fragments on the floor. "
             "A nice artistic portrait of some ...... king is in front of you. He is on a horse, using a long sword cutting through the throat of evil enemy. "
             "His soldiers are motivated by this greatly and start to fight as well, even if the enemies are strong. "
@@ -160,7 +166,7 @@ void Story::state_init() {
             }
         };
 
-        west_room_1F = {
+        west_room_1F = new State {
             "It is so weird that door opens automatically, while just few minutes ago the door is as hard as a rock. "
             "There is a white board on the table, and a hand-written math formula, neat as printed. "
             "There is a chest with a coded lock of 4 digits on the side and you are a mathematic genius, how can this go wrong?"
@@ -193,9 +199,9 @@ void Story::state_init() {
                             "The chest is open and there is a cute teddy bear in it! It is soft, cool, and comfortable, "
                             "without even a tiny particle of dust on it. You put it into your bag. "
                         );
-                        west_room_1F.description = "There is nothing in the room except the table and an empty chest";
-                        west_room_1F.choices.erase(west_room_1F.choices.begin(),west_room_1F.choices.begin()+4);
-                        east_room_1F.choices.emplace_back(
+                        west_room_1F->description = "There is nothing in the room except the table and an empty chest";
+                        west_room_1F->choices.erase(west_room_1F->choices.begin(),west_room_1F->choices.begin()+4);
+                        east_room_1F->choices.emplace_back(
                             Choices
                             {
                                 "how about this hand of my cute little teddy bear?",
@@ -208,8 +214,8 @@ void Story::state_init() {
                                     message(
                                         "You hear multiple crashing sounds outside of the room."
                                     );
-                                    middle_state_1F.description = "You see a convoluted stairway which you have not seen before";
-                                    middle_state_1F.choices.emplace_back(
+                                    middle_state_1F->description = "You see a convoluted stairway which you have not seen before";
+                                    middle_state_1F->choices.emplace_back(
                                         Choices{
                                             "Go upstairs",
                                             [this](atr_type &atr){
@@ -233,7 +239,7 @@ void Story::state_init() {
             }
         };
 
-        east_room_1F = {
+        east_room_1F = new State{
             "A knife is cutting through raw meat in the kitchen, and the smell of cheesesteak around the corner is so good! Wait a minute, "
             "the knife is moving by itself! Is this magic, or just an invisible chef? While you are wondering, the chef speaks, \n"
             " |  CAN YOU GIVE ME A HAND? | ",
@@ -256,7 +262,7 @@ void Story::state_init() {
             }
         };
 
-        south_room_1F = {
+        south_room_1F = new State{
             "In front of you is a heavy bronze door that you can not open. "
             "However, there is a teardrop-shaped groove right in the middle of the door",
             {
@@ -285,7 +291,7 @@ void Story::state_init() {
             }
         };
 
-        boss_room_2F = {
+        boss_room_2F = new State{
             "A huge fire dragon appears!",
             {
                 {

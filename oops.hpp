@@ -11,7 +11,6 @@
 using namespace std;
 
 typedef std::map<std::string, std::string> atr_type;
-
 class Player{
     public:
         //item -> attribute
@@ -23,7 +22,7 @@ public:
     class Choices{
     public:
         std::string description = "";
-        function<State(atr_type &)> trans = nullptr;
+        function<State*(atr_type &)> trans = nullptr;
     };
     std::vector<Choices> choices;
     size_t current_choice = 0;
@@ -33,20 +32,20 @@ public:
     //next choice
     void pushdown(){current_choice = (current_choice + 1) % choices.size();}
     //actually choose (current)
-    State choose(atr_type &atr){
+    State* choose(atr_type &atr){
         if(choices[current_choice].trans == nullptr)
         {
-            return *this;
+            return this;
         }
         return choices[current_choice].trans(atr);
     }
     //actually choose (indexing)
-    State choose(atr_type &atr, size_t i){
+    State* choose(atr_type &atr, size_t i){
         //assert(i >= 0);
         //assert(i < choices.size());
         if(choices[i].trans == nullptr)
         {
-            return *this;
+            return this;
         }
         return choices[i].trans(atr);
     }
