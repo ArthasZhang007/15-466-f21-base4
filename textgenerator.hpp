@@ -10,7 +10,6 @@
 //opengl
 #include "GL.hpp"
 #include <glm/glm.hpp>
-
 #include <math.h>
 //c++ stl
 #include <string>

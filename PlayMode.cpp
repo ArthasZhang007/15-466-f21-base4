@@ -92,7 +92,6 @@ PlayMode::~PlayMode()
 
 bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 {
-
 	if (evt.type == SDL_KEYDOWN)
 	{
 		if (evt.key.keysym.sym == SDLK_ESCAPE)
@@ -221,27 +220,25 @@ void PlayMode::update(float elapsed)
 			text_generator.font_size = 10;
 			if (count++ == currState->current_choice)
 			{
-				text_generator.println(choice.description, glm::vec2(-0.9, 0.8), line_num++, glm::vec3(255, 128, 0));
+				line_num += 0.4;
+				text_generator.println(choice.description, glm::vec2(-0.9, 0.8), line_num, glm::vec3(255, 128, 0));
 			}
-			else
-				text_generator.println(choice.description, glm::vec2(-0.9, 0.8), line_num++);
+			else{
+				line_num += 0.4;
+				text_generator.println(choice.description, glm::vec2(-0.9, 0.8), line_num);
+			}
 		}
 	}
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size)
 {
-	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
 	// DRAW
 	glClearColor(0.2f, 0.2f, 0.2f, 0.6f);
 	glClear(GL_COLOR_BUFFER_BIT);
-		
-	
-
-
 	// Draw
 	// start position
 	float y_offset = -100.0f;
