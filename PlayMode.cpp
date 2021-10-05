@@ -1,5 +1,5 @@
 #include "PlayMode.hpp"
-
+#include "Story.hpp"
 #include "LitColorTextureProgram.hpp"
 
 #include "DrawLines.hpp"
@@ -7,8 +7,6 @@
 #include "Load.hpp"
 #include "gl_errors.hpp"
 #include "data_path.hpp"
-
-#include "oops.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -58,14 +56,17 @@ PlayMode::PlayMode() : scene(*hexapod_scene)
 	//text_generator
 	//inital state
 	text_generator.load_font(data_path("ArialCE.ttf"));
-	// text_generator.reshape("aaaaaaaaaa", glm::vec2(-0.95,0.9), glm::vec3(1,1,1), 0);
-	// text_generator.reshape("bbbbbbbbbb", glm::vec2(-0.95,0.9), glm::vec3(1,1,1), 0.5);
-	// text_generator.reshape("cccccccccc", glm::vec2(-0.95,0.9), glm::vec3(1,1,1), 0.7);
-	std::string teststr = "aaaaaaaaaaaaaaabbbbbbbbbbbbbcccccccccccccddddddddddddeeeeeeeeeeeeeefffffffffffffgggggggggghhhhhhhhhhhhiiiiiiiiiiiiijjjjjjjjjjjjkkkkkkkkkkkklllllllllllllmmmmmmmmmmmnnnnnnnnnnnn";
-	text_generator.println(teststr, glm::vec2(-0.95,0.9));
-	//start music loop playing:
-	// (note: position will be over-ridden in update())
-	//get pointers to leg for convenience:
+	menu_generator.font_size = 70;
+	menu_generator.load_font(data_path("SuperMario256.ttf"));
+	std::string teststr = "Demon - Text Based Adventure Game";
+	menu_generator.println(teststr, glm::vec2(-0.6,0.5),1, glm::vec3(128,128,0));
+	std::string authors = "Presented by Lingxi Zhang and Zhengjia Cao";
+	menu_generator.println(authors, glm::vec2(-0.7,0),2);
+	std::string instruction = "Press SPACE to continue...";
+	menu_generator.println(instruction, glm::vec2(-0.7,-0),3);
+	Story game;
+	game.state_init();
+	currState = &game.start_state;
 	for (auto &transform : scene.transforms)
 	{
 		if (transform.name == "Hip.FL")
@@ -131,6 +132,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			down.downs += 1;
 			down.pressed = true;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_SPACE) {
+			space.downs += 1;
+			space.pressed = true;
 		}
 	}
 	else if (evt.type == SDL_KEYUP)
@@ -153,6 +157,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		else if (evt.key.keysym.sym == SDLK_s)
 		{
 			down.pressed = false;
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_SPACE) {
+			space.pressed = false;
+			this->startup = false;
 			return true;
 		}
 	}
@@ -182,62 +190,14 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed)
 {
-	//slowly rotates through [0,1):
-	wobble += elapsed / 10.0f;
-	wobble -= std::floor(wobble);
-
-	hip->rotation = hip_base_rotation * glm::angleAxis(
-											glm::radians(5.0f * std::sin(wobble * 2.0f * float(M_PI))),
-											glm::vec3(0.0f, 1.0f, 0.0f));
-	upper_leg->rotation = upper_leg_base_rotation * glm::angleAxis(
-														glm::radians(7.0f * std::sin(wobble * 2.0f * 2.0f * float(M_PI))),
-														glm::vec3(0.0f, 0.0f, 1.0f));
-	lower_leg->rotation = lower_leg_base_rotation * glm::angleAxis(
-														glm::radians(10.0f * std::sin(wobble * 3.0f * 2.0f * float(M_PI))),
-														glm::vec3(0.0f, 0.0f, 1.0f));
-
-	//move sound to follow leg tip position:
-	leg_tip_loop->set_position(get_leg_tip_position(), 1.0f / 60.0f);
-
-	//move camera:
-	{
-
-		//combine inputs into a move:
-		constexpr float PlayerSpeed = 30.0f;
-		glm::vec2 move = glm::vec2(0.0f);
-		if (left.pressed && !right.pressed)
-			move.x = -1.0f;
-		if (!left.pressed && right.pressed)
-			move.x = 1.0f;
-		if (down.pressed && !up.pressed)
-			move.y = -1.0f;
-		if (!down.pressed && up.pressed)
-			move.y = 1.0f;
-
-		//make it so that moving diagonally doesn't go faster:
-		if (move != glm::vec2(0.0f))
-			move = glm::normalize(move) * PlayerSpeed * elapsed;
-
-		glm::mat4x3 frame = camera->transform->make_local_to_parent();
-		glm::vec3 right = frame[0];
-		//glm::vec3 up = frame[1];
-		glm::vec3 forward = -frame[2];
-
-		camera->transform->position += move.x * right + move.y * forward;
-	}
-
-	{ //update listener to camera position:
-		glm::mat4x3 frame = camera->transform->make_local_to_parent();
-		glm::vec3 right = frame[0];
-		glm::vec3 at = frame[3];
-		Sound::listener.set_position_right(at, right, 1.0f / 60.0f);
-	}
+	
 
 	//reset button press counters:
 	left.downs = 0;
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
+	space.downs = 0;
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size)
@@ -257,51 +217,98 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	float cursor_y = 0;
 	double line = -1;
 	//printf("start\n");
-	for (size_t i = 0; i < text_generator.characters.size(); ++i)
-	{
-		textgenerator::Character c = text_generator.characters[i];
-		printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
-		printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
-		glm::mat4 to_clip = glm::mat4( 
-			1 * 2.0f / float(drawable_size.x), 0.0f, 0.0f, 0.0f,
-			0.0f, 1 * 2.0f / float(drawable_size.y), 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			2.0f / float(drawable_size.x), 2.0f / float(drawable_size.y), 0.0f, 1.0f);
-		glUseProgram(color_texture_program->program);
-		glUniform3f(glGetUniformLocation(color_texture_program->program, "textColor"), c.red, c.green, c.blue);
-		glUniformMatrix4fv(color_texture_program->OBJECT_TO_CLIP_mat4, 1, GL_FALSE, glm::value_ptr(to_clip));
-		glBindVertexArray(VAO);
+	if (startup) {
+		for (size_t i = 0; i < menu_generator.characters.size(); ++i) {
+			textgenerator::Character c = menu_generator.characters[i];
+			printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
+			printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
+			glm::mat4 to_clip = glm::mat4( 
+				1 * 2.0f / float(drawable_size.x), 0.0f, 0.0f, 0.0f,
+				0.0f, 1 * 2.0f / float(drawable_size.y), 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f,
+				2.0f / float(drawable_size.x), 2.0f / float(drawable_size.y), 0.0f, 1.0f);
+			glUseProgram(color_texture_program->program);
+			glUniform3f(glGetUniformLocation(color_texture_program->program, "textColor"), c.red, c.green, c.blue);
+			glUniformMatrix4fv(color_texture_program->OBJECT_TO_CLIP_mat4, 1, GL_FALSE, glm::value_ptr(to_clip));
+			glBindVertexArray(VAO);
 
-		if (c.line != line)
-		{
-			cursor_x = drawable_size.x / 2.0f * c.start_x;
-			cursor_y = drawable_size.y / 2.0f * c.start_y + (float)c.line * y_offset;
-			line = c.line;
+			if (c.line != line)
+			{
+				cursor_x = drawable_size.x / 2.0f * c.start_x;
+				cursor_y = drawable_size.y / 2.0f * c.start_y + (float)c.line * y_offset;
+				line = c.line;
+			}
+
+			float xpos = cursor_x + c.x_offset + c.bearing_x;
+			float ypos = cursor_y + c.y_offset - (c.height - c.bearing_y);
+			int w = c.width;
+			int h = c.height;
+
+			float vertices[6][4] = {
+				{xpos, ypos + h, 0.0f, 0.0f},
+				{xpos, ypos, 0.0f, 1.0f},
+				{xpos + w, ypos, 1.0f, 1.0f},
+				{xpos, ypos + h, 0.0f, 0.0f},
+				{xpos + w, ypos, 1.0f, 1.0f},
+				{xpos + w, ypos + h, 1.0f, 0.0f}};
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, c.texture);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
+			cursor_x += c.x_advance;
+			cursor_y += c.y_advance;
 		}
+	} else {
+		for (size_t i = 0; i < text_generator.characters.size(); ++i) {
+			textgenerator::Character c = text_generator.characters[i];
+			printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
+			printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
+			glm::mat4 to_clip = glm::mat4( 
+				1 * 2.0f / float(drawable_size.x), 0.0f, 0.0f, 0.0f,
+				0.0f, 1 * 2.0f / float(drawable_size.y), 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f,
+				2.0f / float(drawable_size.x), 2.0f / float(drawable_size.y), 0.0f, 1.0f);
+			glUseProgram(color_texture_program->program);
+			glUniform3f(glGetUniformLocation(color_texture_program->program, "textColor"), c.red, c.green, c.blue);
+			glUniformMatrix4fv(color_texture_program->OBJECT_TO_CLIP_mat4, 1, GL_FALSE, glm::value_ptr(to_clip));
+			glBindVertexArray(VAO);
 
-		float xpos = cursor_x + c.x_offset + c.bearing_x;
-		float ypos = cursor_y + c.y_offset - (c.height - c.bearing_y);
-		int w = c.width;
-		int h = c.height;
+			if (c.line != line)
+			{
+				cursor_x = drawable_size.x / 2.0f * c.start_x;
+				cursor_y = drawable_size.y / 2.0f * c.start_y + (float)c.line * y_offset;
+				line = c.line;
+			}
 
-		float vertices[6][4] = {
-			{xpos, ypos + h, 0.0f, 0.0f},
-			{xpos, ypos, 0.0f, 1.0f},
-			{xpos + w, ypos, 1.0f, 1.0f},
-			{xpos, ypos + h, 0.0f, 0.0f},
-			{xpos + w, ypos, 1.0f, 1.0f},
-			{xpos + w, ypos + h, 1.0f, 0.0f}};
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, c.texture);
+			float xpos = cursor_x + c.x_offset + c.bearing_x;
+			float ypos = cursor_y + c.y_offset - (c.height - c.bearing_y);
+			int w = c.width;
+			int h = c.height;
 
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+			float vertices[6][4] = {
+				{xpos, ypos + h, 0.0f, 0.0f},
+				{xpos, ypos, 0.0f, 1.0f},
+				{xpos + w, ypos, 1.0f, 1.0f},
+				{xpos, ypos + h, 0.0f, 0.0f},
+				{xpos + w, ypos, 1.0f, 1.0f},
+				{xpos + w, ypos + h, 1.0f, 0.0f}};
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, c.texture);
 
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		cursor_x += c.x_advance;
-		cursor_y += c.y_advance;
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
+			cursor_x += c.x_advance;
+			cursor_y += c.y_advance;
+		}
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);

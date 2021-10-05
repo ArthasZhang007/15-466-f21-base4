@@ -3,9 +3,6 @@
 #include <fstream>
 #include <iostream>
 
-#define FONT_SIZE 30
-#define LINE_CHAR 30
-
 textgenerator::textgenerator() = default;
 textgenerator::~textgenerator()
 {
@@ -39,7 +36,7 @@ void textgenerator::load_font(std::string filename)
 	{
 		std::cout << "not able to load new face\n";
 	}
-	FT_Set_Char_Size(ft_face, FONT_SIZE * 64, FONT_SIZE * 64, 0, 0);
+	FT_Set_Char_Size(ft_face, font_size * 64, font_size * 64, 0, 0);
 
 	//blob = hb_blob_create_from_file(filename.c_str()); /* or hb_blob_create_from_file_or_fail() */
 	//face = hb_face_create(blob, 0);
@@ -136,13 +133,12 @@ std::vector<std::string> str_split(const std::string& str, int splitLength)
    return ret;
 }
 
-void textgenerator::println(std::string &line, glm::vec2 pos) {
+void textgenerator::println(std::string &line, glm::vec2 pos, double line_num, glm::vec3 color) {
 	// gets the string and change the line when necessary;
 	std::vector<std::string> lines; // vector of substrings
-	lines = str_split(line, LINE_CHAR);
-	double line_num = 0;
+	lines = str_split(line, line_char);
 	for (std::string &s : lines) {
-		this->reshape(s, pos, glm::vec3(1,1,1), line_num);
+		this->reshape(s, pos, color, line_num);
 		std::cout << s << "\n";
 		line_num += 0.4;
 	}

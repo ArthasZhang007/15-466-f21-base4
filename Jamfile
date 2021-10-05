@@ -145,6 +145,7 @@ GAME_NAMES =
 	load_wav
 	load_opus
 	textgenerator
+	Story
 	;
 
 COMMON_NAMES =

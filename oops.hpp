@@ -1,4 +1,5 @@
 #pragma once
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -8,7 +9,9 @@
 #include <chrono>
 
 using namespace std;
+
 typedef std::map<std::string, std::string> atr_type;
+
 class Player{
     public:
         //item -> attribute
@@ -48,39 +51,38 @@ public:
         return choices[i].trans(atr);
     }
 };
-ostream &operator <<(ostream &os, State S){
-    os << "Q : " << S.description << std::endl;
-    os << std::endl;
-    for(size_t i = 0; i<S.choices.size();i++){
-        os << i + 1 << " : " << S.choices[i].description << std::endl;
-    }
-    os << "Current Choice :" << S.current_choice + 1 <<std::endl;
-    return os;
-}
-
-
-State id_state{
-    "id"
-};
-void message(std::string mes){
-    std::cout<<mes<<"\n\n";
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-}
-State id_message(std::string mes){
-    message(mes);
-    return id_state;
-}
-
-State game_over;
-State bad_endding[5];
-State good_endding, real_endding;
-State north_room_1F, west_room_1F, east_room_1F, south_room_1F;
-State boss_room_2F;
-State middle_state_1F;
-State start_state;
+// ostream &operator <<(ostream &os, State S){
+//     os << "Q : " << S.description << std::endl;
+//     os << std::endl;
+//     for(size_t i = 0; i<S.choices.size();i++){
+//         os << i + 1 << " : " << S.choices[i].description << std::endl;
+//     }
+//     os << "Current Choice :" << S.current_choice + 1 <<std::endl;
+//     return os;
+// }
 
 typedef State::Choices Choices;
 
+// State id_state{
+//     "id"
+// };
+// void message(std::string mes){
+//     std::cout<<mes<<"\n\n";
+//     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+// }
+// State id_message(std::string mes){
+//     message(mes);
+//     return id_state;
+// }
+
+// State game_over;
+// State bad_endding[5];
+// State good_endding, real_endding;
+// State north_room_1F, west_room_1F, east_room_1F, south_room_1F;
+// State boss_room_2F;
+// State middle_state_1F;
+// State start_state;
+/*
 void state_init(){
 
 good_endding = {
@@ -383,7 +385,7 @@ boss_room_2F = {
     }
 };
 }
-
+*/
 /*
 攻略:
 1. 选择90(北房间右边的普通镜子)
