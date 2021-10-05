@@ -135,6 +135,11 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_SPACE) {
 			space.downs += 1;
 			space.pressed = true;
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_RETURN) {
+			enter.downs += 1;
+			enter.pressed = true;
+			return true;
 		}
 	}
 	else if (evt.type == SDL_KEYUP)
@@ -161,6 +166,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		} else if (evt.key.keysym.sym == SDLK_SPACE) {
 			space.pressed = false;
 			this->startup = false;
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_RETURN) {
+			enter.pressed = false;
 			return true;
 		}
 	}
@@ -190,8 +198,22 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed)
 {
-	
-
+	if (down.pressed) {
+		currState->pushdown();
+	}
+	if (up.pressed) {
+		currState->pushup();
+	}
+	if (enter.pressed) {
+		// TODO: choose current action;
+		atr_type m;
+		m["power"] = "powerful";
+		State* nextState = &currState->choose(m);
+		if (next->description != "id") {
+			currState = nextState;
+		}
+		
+	}
 	//reset button press counters:
 	left.downs = 0;
 	right.downs = 0;
@@ -220,8 +242,8 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	if (startup) {
 		for (size_t i = 0; i < menu_generator.characters.size(); ++i) {
 			textgenerator::Character c = menu_generator.characters[i];
-			printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
-			printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
+			// printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
+			// printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
 			glm::mat4 to_clip = glm::mat4( 
 				1 * 2.0f / float(drawable_size.x), 0.0f, 0.0f, 0.0f,
 				0.0f, 1 * 2.0f / float(drawable_size.y), 0.0f, 0.0f,
@@ -266,8 +288,8 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	} else {
 		for (size_t i = 0; i < text_generator.characters.size(); ++i) {
 			textgenerator::Character c = text_generator.characters[i];
-			printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
-			printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
+			// printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
+			// printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
 			glm::mat4 to_clip = glm::mat4( 
 				1 * 2.0f / float(drawable_size.x), 0.0f, 0.0f, 0.0f,
 				0.0f, 1 * 2.0f / float(drawable_size.y), 0.0f, 0.0f,

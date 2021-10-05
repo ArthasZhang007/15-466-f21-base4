@@ -51,6 +51,7 @@ public:
         return choices[i].trans(atr);
     }
 };
+
 // ostream &operator <<(ostream &os, State S){
 //     os << "Q : " << S.description << std::endl;
 //     os << std::endl;
@@ -386,6 +387,7 @@ boss_room_2F = {
 };
 }
 */
+
 /*
 攻略:
 1. 选择90(北房间右边的普通镜子)
