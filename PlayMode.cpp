@@ -210,7 +210,9 @@ void PlayMode::update(float elapsed)
 {
 	if ((!startup && !status_init) || status_change)
 	{
+		status_change = false;
 		status_init = true;
+		text_generator.characters.clear();
 		text_generator.println(currState->description, glm::vec2(-0.9, 0.8));
 		double line_num = 1;
 		size_t count = 0;
@@ -229,16 +231,15 @@ void PlayMode::update(float elapsed)
 
 void PlayMode::draw(glm::uvec2 const &drawable_size)
 {
-	if(status_init || status_change){
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glDisable(GL_DEPTH_TEST);
-		// DRAW
-		glClearColor(0.2f, 0.2f, 0.2f, 0.6f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		status_change = false;
+	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+	// DRAW
+	glClearColor(0.2f, 0.2f, 0.2f, 0.6f);
+	glClear(GL_COLOR_BUFFER_BIT);
 		
-	}
+	
 
 
 	// Draw
