@@ -74,7 +74,7 @@ PlayMode::PlayMode() : scene(*hexapod_scene)
 	std::string instruction = "Press SPACE to continue and make choices in the game...";
 	menu_generator.println(instruction, glm::vec2(-0.7,-0),3);
 	game.state_init();
-	currState = &game.middle_state_1F;
+	currState = game.middle_state_1F;
 
 	//get pointer to camera for convenience:
 	if (scene.cameras.size() != 1)
@@ -189,24 +189,20 @@ void PlayMode::update(float elapsed)
 {
 	if (down.pressed) {
 		currState->pushdown();
-		//std::cout << currState->current_choice << "\n";
+		std::cout << currState->current_choice << "\n";
 	}
 	if (up.pressed) {
 		currState->pushup();
-		//std::cout << currState->current_choice << "\n";
+		std::cout << currState->current_choice << "\n";
 
 	}
-<<<<<<< HEAD
 	if (enter.pressed) {
 		//std::cout<<*currState<<' '<<currState->current_choice ;
-=======
-	if (space.pressed) {
-		cout << "update: enter" << "\n";
->>>>>>> f6b10d1d2a6bcb948ed70cf94525079de3eead76
-		State nextState = (currState->choose(m));
+		//std::cout<<"fuck"<<std::endl;
+		State* nextState = (currState->choose(m));
 		
-		if (nextState.description != "id") {
-			*currState = nextState;
+		if (nextState->description != "id") {
+			currState = nextState;
 		}
 		std::cout<<*currState;
 	}
