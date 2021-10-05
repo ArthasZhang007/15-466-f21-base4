@@ -55,6 +55,7 @@ PlayMode::PlayMode() : scene(*hexapod_scene)
 {
 	//text_generator
 	//inital state
+	text_generator.font_size = 50;
 	text_generator.load_font(data_path("ArialCE.ttf"));
 	menu_generator.font_size = 70;
 	menu_generator.load_font(data_path("SuperMario256.ttf"));
@@ -64,9 +65,8 @@ PlayMode::PlayMode() : scene(*hexapod_scene)
 	menu_generator.println(authors, glm::vec2(-0.7,0),2);
 	std::string instruction = "Press SPACE to continue...";
 	menu_generator.println(instruction, glm::vec2(-0.7,-0),3);
-	Story game;
 	game.state_init();
-	currState = &game.start_state;
+	currState = &game.middle_state_1F;
 	for (auto &transform : scene.transforms)
 	{
 		if (transform.name == "Hip.FL")
@@ -192,7 +192,6 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		}
 	}
-
 	return false;
 }
 
@@ -200,19 +199,29 @@ void PlayMode::update(float elapsed)
 {
 	if (down.pressed) {
 		currState->pushdown();
+		std::cout << currState->current_choice << "\n";
 	}
 	if (up.pressed) {
 		currState->pushup();
+		std::cout << currState->current_choice << "\n";
+
 	}
 	if (enter.pressed) {
-		// TODO: choose current action;
-		atr_type m;
-		m["power"] = "powerful";
-		State* nextState = &currState->choose(m);
-		if (next->description != "id") {
-			currState = nextState;
+		State nextState = (currState->choose(m));
+		if (nextState.description != "id") {
+			currState = &nextState;
 		}
-		
+	}
+	if (!startup) {
+		text_generator.println(currState->description, glm::vec2(-0.9,0.8));
+		size_t line_num = 4;
+		size_t count = 0;
+		for (auto choice : currState->choices) {
+			if (count++ == currState->current_choice) {
+				text_generator.println(choice.description, glm::vec2(-0.9,0.3), line_num++, glm::vec3(128,128,0));
+			}
+			else text_generator.println(choice.description, glm::vec2(-0.9,0.3), line_num++);
+		}
 	}
 	//reset button press counters:
 	left.downs = 0;

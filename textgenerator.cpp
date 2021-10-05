@@ -136,11 +136,12 @@ std::vector<std::string> str_split(const std::string& str, int splitLength)
 void textgenerator::println(std::string &line, glm::vec2 pos, double line_num, glm::vec3 color) {
 	// gets the string and change the line when necessary;
 	std::vector<std::string> lines; // vector of substrings
+	// std::cout << line << '\n';
 	lines = str_split(line, line_char);
 	for (std::string &s : lines) {
 		this->reshape(s, pos, color, line_num);
-		std::cout << s << "\n";
-		line_num += 0.4;
+		// std::cout << s << "\n";
+		line_num += 0.6;
 	}
 }
 

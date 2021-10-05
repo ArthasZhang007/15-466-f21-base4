@@ -12,6 +12,7 @@
 #include <deque>
 #include "textgenerator.hpp"
 // game logic in oops
+#include "Story.hpp"
 #include "oops.hpp"
 
 struct PlayMode : Mode {
@@ -52,8 +53,9 @@ struct PlayMode : Mode {
 	Scene::Camera *camera = nullptr;
 	textgenerator text_generator;
 	textgenerator menu_generator;
+	Story game;
 	State *currState;
 	bool startup = true;
 	int currentSelection = 0; // denote user's selection of choice
-
+	atr_type m;
 };

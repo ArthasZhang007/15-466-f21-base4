@@ -1,3 +1,4 @@
+#pragma once
 #include "oops.hpp"
 
 struct Story {
@@ -12,8 +13,10 @@ struct Story {
     State id_state{
         "id"
     };
+    std::string currMsg;
     void message(std::string mes){
         std::cout<<mes<<"\n\n";
+        currMsg = mes;
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     State id_message(std::string mes){
