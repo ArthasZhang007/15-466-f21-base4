@@ -216,15 +216,16 @@ void PlayMode::update(float elapsed)
 		text_generator.println(currState->description, glm::vec2(-0.9, 0.8));
 		double line_num = 1;
 		size_t count = 0;
+
 		for (auto choice : currState->choices)
 		{
 			text_generator.font_size = 10;
 			if (count++ == currState->current_choice)
 			{
-				text_generator.println(choice.description, glm::vec2(-0.9, 0.8), line_num++, glm::vec3(255, 128, 0));
+				text_generator.println(choice.description, glm::vec2(-0.9, 0.6), line_num+=0.2, glm::vec3(255, 128, 0));
 			}
 			else
-				text_generator.println(choice.description, glm::vec2(-0.9, 0.8), line_num++);
+				text_generator.println(choice.description, glm::vec2(-0.9, 0.6), line_num+=0.2);
 		}
 	}
 }
