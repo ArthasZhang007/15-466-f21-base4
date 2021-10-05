@@ -2,7 +2,10 @@
 
 #include <fstream>
 #include <iostream>
-#define FONT_SIZE 25
+
+#define FONT_SIZE 30
+#define LINE_CHAR 30
+
 textgenerator::textgenerator() = default;
 textgenerator::~textgenerator()
 {
@@ -50,8 +53,7 @@ void textgenerator::draw_glyph(hb_codepoint_t glyphid, hb_position_t x, hb_posit
 	std::cout << glyphid << ' ' << x << ' ' << y << std::endl;
 }
 
-void textgenerator::reshape(std::string text, glm::vec2 pos, glm::vec3 color, double line)
-{
+void textgenerator::reshape(std::string text, glm::vec2 pos, glm::vec3 color, double line) {
 
 	hb_buffer_reset(buf);
 	hb_buffer_add_utf8(buf, text.c_str(), -1, 0, -1);
@@ -112,6 +114,41 @@ void textgenerator::reshape(std::string text, glm::vec2 pos, glm::vec3 color, do
 		characters.push_back({(int)texture, w, h, line, pos.x, pos.y, l, t, (float)x_offset, (float)y_offset, (float)x_advance, (float)y_advance, color.x, color.y, color.z});
 	}
 }
+
+// reference: https://stackoverflow.com/questions/25022880/c-split-string-every-x-characters
+std::vector<std::string> str_split(const std::string& str, int splitLength)
+{
+   int NumSubstrings = str.length() / splitLength;
+   std::vector<std::string> ret;
+
+   for (auto i = 0; i < NumSubstrings; i++)
+   {
+        ret.push_back(str.substr(i * splitLength, splitLength));
+   }
+
+   // If there are leftover characters, create a shorter item at the end.
+   if (str.length() % splitLength != 0)
+   {
+        ret.push_back(str.substr(splitLength * NumSubstrings));
+   }
+
+
+   return ret;
+}
+
+void textgenerator::println(std::string &line, glm::vec2 pos) {
+	// gets the string and change the line when necessary;
+	std::vector<std::string> lines; // vector of substrings
+	lines = str_split(line, LINE_CHAR);
+	double line_num = 0;
+	for (std::string &s : lines) {
+		this->reshape(s, pos, glm::vec3(1,1,1), line_num);
+		std::cout << s << "\n";
+		line_num += 0.4;
+	}
+}
+
+
 /*int main(int argc, char **argv)
 {
 	std::cout<<"fuck"<<std::endl;

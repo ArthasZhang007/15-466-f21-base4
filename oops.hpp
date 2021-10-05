@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <vector>
@@ -23,7 +24,6 @@ public:
     };
     std::vector<Choices> choices;
     size_t current_choice = 0;
-
 
     //last choice 
     void pushup(){current_choice = (current_choice + choices.size() - 1) % choices.size();}
@@ -57,15 +57,6 @@ ostream &operator <<(ostream &os, State S){
     os << "Current Choice :" << S.current_choice + 1 <<std::endl;
     return os;
 }
-
-
-
-
-
-
-
-
-
 
 
 State id_state{
@@ -404,50 +395,27 @@ boss_room_2F = {
 */
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //demo
-void init(){
-    State istate;
-    atr_type m;
-    istate = start_state;
-    m["power"] = "powerful";
-    int i = -1;
-    while(true)
-    {
-        std::cout<<istate<<std::endl;
-        if(istate.choices.empty())break;
-        std::cin>>i;
-        State next_state = istate.choose(m, i - 1);
-        if(next_state.description !="id"){
-            istate = next_state;
-        }
-    }
+// void init(){
+//     State istate;
+//     atr_type m;
+//     istate = start_state;
+//     m["power"] = "powerful";
+//     int i = -1;
+//     while(true)
+//     {
+//         std::cout<<istate<<std::endl;
+//         if(istate.choices.empty())break;
+//         std::cin>>i;
+//         State next_state = istate.choose(m, i - 1);
+//         if(next_state.description !="id"){
+//             istate = next_state;
+//         }
+//     }
     
-}
-int main(){
-    state_init();
-    init();
-    return 0;
-}
+// }
+// int main(){
+//     state_init();
+//     // init();
+//     return 0;
+// }

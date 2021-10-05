@@ -17,14 +17,15 @@
 #include <map>
 #include <vector>
 
-
 struct Glyph
 {
     GLuint id;
     glm::ivec2 dim;
     glm::ivec2 pos;
 };
+
 typedef unsigned char tchar_t;
+
 class textgenerator
 {
 public:
@@ -34,6 +35,7 @@ public:
     void draw_glyph(hb_codepoint_t glyphid, hb_position_t x, hb_position_t y);
     void load_font(std::string filename);
     void reshape(std::string text, glm::vec2 pos, glm::vec3 color, double line);
+    void println(std::string &line, glm::vec2 pos);
     struct Character
     {
         const int texture;
@@ -54,7 +56,6 @@ public:
     };
 
     std::vector<Character> characters;
-
     std::map<tchar_t, Glyph> Glyph_dict;
     GLuint VAO, VBO;
 
