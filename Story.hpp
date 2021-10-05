@@ -16,7 +16,7 @@ struct Story {
     void message(std::string mes){
         std::cout<<mes<<"\n\n";
         currMsg = mes;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     State* id_message(std::string mes){
         message(mes);

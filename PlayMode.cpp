@@ -65,18 +65,18 @@ PlayMode::PlayMode() : scene(*hexapod_scene)
 {
 	//text_generator
 	//inital state
-	text_generator.font_size = 50/3;
+	text_generator.font_size = 40;
 	text_generator.load_font(data_path("ArialCE.ttf"));
-	menu_generator.font_size = 70/2;
+	menu_generator.font_size = 70;
 	menu_generator.load_font(data_path("SuperMario256.ttf"));
 	std::string teststr = "Demon - Text Based Adventure Game";
 	menu_generator.println(teststr, glm::vec2(-0.6, 0.5), 1, glm::vec3(128, 128, 0));
 	std::string authors = "Presented by Lingxi Zhang and Zhengjia Cao";
 	menu_generator.println(authors, glm::vec2(-0.7, 0), 2);
-	std::string instruction = "Press SPACE to continue and make choices in the game...";
+	std::string instruction = "Press SPACE to continue...";
 	menu_generator.println(instruction, glm::vec2(-0.7, -0), 3);
 	game.state_init();
-	currState = game.middle_state_1F;
+	currState = game.start_state;
 
 	//get pointer to camera for convenience:
 	if (scene.cameras.size() != 1)
@@ -210,6 +210,7 @@ void PlayMode::update(float elapsed)
 	if ((!startup && !status_init) || status_change)
 	{
 		status_change = false;
+		// game.currMsg = "";
 		status_init = true;
 		text_generator.characters.clear();
 		text_generator.println(currState->description, glm::vec2(-0.9, 0.8));
@@ -217,16 +218,18 @@ void PlayMode::update(float elapsed)
 		size_t count = 0;
 		for (auto choice : currState->choices)
 		{
-			text_generator.font_size = 10;
+			text_generator.font_size = 30;
 			if (count++ == currState->current_choice)
 			{
-				line_num += 0.4;
-				text_generator.println(choice.description, glm::vec2(-0.9, 0.8), line_num, glm::vec3(255, 128, 0));
+				text_generator.println(choice.description, glm::vec2(-0.9, 0.5), line_num+=0.6, glm::vec3(255, 128, 0));
 			}
-			else{
-				line_num += 0.4;
-				text_generator.println(choice.description, glm::vec2(-0.9, 0.8), line_num);
-			}
+			else
+				text_generator.println(choice.description, glm::vec2(-0.9, 0.5), line_num+=0.6);
+		}
+		if (game.currMsg .size() != 0) {
+			text_generator.println(game.currMsg, glm::vec2(-0.5, 0.3));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			game.currMsg = "";
 		}
 	}
 }
@@ -245,7 +248,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	float cursor_x = 0;
 	float cursor_y = 0;
 	double line = -1;
-	//printf("start\n");
 	if (startup)
 	{
 		for (size_t i = 0; i < menu_generator.characters.size(); ++i)
@@ -298,8 +300,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 		for (size_t i = 0; i < text_generator.characters.size(); ++i)
 		{
 			textgenerator::Character c = text_generator.characters[i];
-			// printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
-			// printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
 			glm::mat4 to_clip = glm::mat4(
 				1 * 2.0f / float(drawable_size.x), 0.0f, 0.0f, 0.0f,
 				0.0f, 1 * 2.0f / float(drawable_size.y), 0.0f, 0.0f,
