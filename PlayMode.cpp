@@ -217,8 +217,9 @@ void PlayMode::update(float elapsed)
 		size_t line_num = 4;
 		size_t count = 0;
 		for (auto choice : currState->choices) {
+			text_generator.font_size = 30;
 			if (count++ == currState->current_choice) {
-				text_generator.println(choice.description, glm::vec2(-0.9,0.3), line_num++, glm::vec3(128,128,0));
+				text_generator.println(choice.description, glm::vec2(-0.9,0.3), line_num++, glm::vec3(255,128,0));
 			}
 			else text_generator.println(choice.description, glm::vec2(-0.9,0.3), line_num++);
 		}
@@ -233,7 +234,6 @@ void PlayMode::update(float elapsed)
 
 void PlayMode::draw(glm::uvec2 const &drawable_size)
 {
-	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
