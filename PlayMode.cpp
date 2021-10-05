@@ -194,7 +194,6 @@ void PlayMode::update(float elapsed)
 	if (up.pressed) {
 		currState->pushup();
 		std::cout << currState->current_choice << "\n";
-
 	}
 	if (enter.pressed) {
 		//std::cout<<*currState<<' '<<currState->current_choice ;
@@ -206,13 +205,14 @@ void PlayMode::update(float elapsed)
 		}
 		std::cout<<*currState;
 	}
-	if (!startup) {
+	if (!startup && (enter.pressed || up.pressed || down.pressed || space.pressed)) {
 		text_generator.println(currState->description, glm::vec2(-0.9,0.8));
 		double line_num = 4;
 		size_t count = 0;
 		for (auto choice : currState->choices) {
 			text_generator.font_size = 30;
 			if (count++ == currState->current_choice) {
+				text_generator.reset();
 				text_generator.println(choice.description, glm::vec2(-0.9,0.3), line_num++, glm::vec3(255,128,0));
 			}
 			else text_generator.println(choice.description, glm::vec2(-0.9,0.3), line_num++);
@@ -241,7 +241,7 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	float cursor_x = 0;
 	float cursor_y = 0;
 	double line = -1;
-	//printf("start\n");
+	
 	if (startup) {
 		for (size_t i = 0; i < menu_generator.characters.size(); ++i) {
 			textgenerator::Character c = menu_generator.characters[i];
@@ -289,8 +289,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	} else {
 		for (size_t i = 0; i < text_generator.characters.size(); ++i) {
 			textgenerator::Character c = text_generator.characters[i];
-			// printf(" a : %f %f %f %f\n", c.x_offset, c.y_offset, c.x_advance, c.y_advance);
-			// printf(" b : % f %f %f %f %f\n", c.start_x, c.start_y, c.red, c.green, c.blue);
 			glm::mat4 to_clip = glm::mat4( 
 				1 * 2.0f / float(drawable_size.x), 0.0f, 0.0f, 0.0f,
 				0.0f, 1 * 2.0f / float(drawable_size.y), 0.0f, 0.0f,

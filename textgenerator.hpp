@@ -34,6 +34,7 @@ public:
     void cleanup();
     void draw_glyph(hb_codepoint_t glyphid, hb_position_t x, hb_position_t y);
     void load_font(std::string filename);
+    void reset();
     void reshape(std::string text, glm::vec2 pos, glm::vec3 color, double line);
     void println(std::string &line, glm::vec2 pos, double line_num = 0.0f, glm::vec3 color = glm::vec3(1,1,1));
     struct Character

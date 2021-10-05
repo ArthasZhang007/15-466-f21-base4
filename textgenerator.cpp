@@ -28,6 +28,11 @@ void textgenerator::cleanup()
 		hb_blob_destroy(blob);
 	}
 }
+
+void textgenerator::reset() {
+	hb_buffer_clear_contents(buf);
+}
+
 void textgenerator::load_font(std::string filename)
 {
 	FT_Init_FreeType(&ft_library);
@@ -118,7 +123,7 @@ std::vector<std::string> str_split(const std::string& str, int splitLength)
    size_t NumSubstrings = str.length() / splitLength;
    std::vector<std::string> ret;
 
-   for (auto i = 0; i < NumSubstrings; i++)
+   for (size_t i = 0; i < NumSubstrings; i++)
    {
         ret.push_back(str.substr(i * splitLength, splitLength));
    }

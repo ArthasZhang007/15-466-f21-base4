@@ -6,7 +6,7 @@ Design: A text based adventure game with novel plot written by the authors.
 
 Text Drawing: 
 
-The text drawing in this game is implemented by the text drawing pipeline in the `textgenerator.hpp` and `textgenerator.cpp`. The graphics code for actual text display is in `PlayMode::draw` function.
+The text drawing in this game is implemented by the text drawing pipeline in the `textgenerator.hpp` and `textgenerator.cpp`. The graphics code for actual text display is in `PlayMode::draw` function. The underlying 
 
 
 
