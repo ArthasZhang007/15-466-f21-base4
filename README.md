@@ -15,7 +15,7 @@ Screen Shot:
 
 How To Play:
 
-Use the `w` and `s` key to make the choices. Confirm your choice with `SPACE` and proceed with the plot.
+Use the `w` and `s` key to make the choices. Confirm your choice with `return` and proceed with the plot.
 
 Sources: 
 
