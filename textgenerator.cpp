@@ -115,7 +115,7 @@ void textgenerator::reshape(std::string text, glm::vec2 pos, glm::vec3 color, do
 // reference: https://stackoverflow.com/questions/25022880/c-split-string-every-x-characters
 std::vector<std::string> str_split(const std::string& str, int splitLength)
 {
-   int NumSubstrings = str.length() / splitLength;
+   size_t NumSubstrings = str.length() / splitLength;
    std::vector<std::string> ret;
 
    for (auto i = 0; i < NumSubstrings; i++)
