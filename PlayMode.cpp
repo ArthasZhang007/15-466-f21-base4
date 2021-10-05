@@ -11,7 +11,15 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <random>
-
+ostream &operator <<(ostream &os, State S){
+    os << "Q : " << S.description << std::endl;
+    os << std::endl;
+    for(size_t i = 0; i<S.choices.size();i++){
+        os << i + 1 << " : " << S.choices[i].description << std::endl;
+    }
+    os << "Current Choice :" << S.current_choice + 1 <<std::endl;
+    return os;
+}
 GLuint VAO, VBO;
 static Load< void > setup_buffers(LoadTagDefault, []() {
     glGenVertexArrays(1, &VAO);
