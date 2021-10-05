@@ -67,6 +67,9 @@ PlayMode::PlayMode() : scene(*hexapod_scene)
 	menu_generator.println(instruction, glm::vec2(-0.7,-0),3);
 	game.state_init();
 	currState = &game.middle_state_1F;
+
+
+
 	for (auto &transform : scene.transforms)
 	{
 		if (transform.name == "Hip.FL")
@@ -208,13 +211,14 @@ void PlayMode::update(float elapsed)
 	}
 	if (enter.pressed) {
 		State nextState = (currState->choose(m));
+		std::cout<<nextState;
 		if (nextState.description != "id") {
 			currState = &nextState;
 		}
 	}
 	if (!startup) {
 		text_generator.println(currState->description, glm::vec2(-0.9,0.8));
-		size_t line_num = 4;
+		double line_num = 4;
 		size_t count = 0;
 		for (auto choice : currState->choices) {
 			text_generator.font_size = 30;
