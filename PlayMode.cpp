@@ -56,7 +56,7 @@ Load<Scene> hexapod_scene(LoadTagDefault, []() -> Scene const * {
 });
 
 Load<Sound::Sample> dusty_floor_sample(LoadTagDefault, []() -> Sound::Sample const * {
-	return new Sound::Sample(data_path("dusty-floor.opus"));
+	return new Sound::Sample(data_path("bgm.opus"));
 });
 
 PlayMode::PlayMode() : scene(*hexapod_scene)
@@ -71,39 +71,17 @@ PlayMode::PlayMode() : scene(*hexapod_scene)
 	menu_generator.println(teststr, glm::vec2(-0.6,0.5),1, glm::vec3(128,128,0));
 	std::string authors = "Presented by Lingxi Zhang and Zhengjia Cao";
 	menu_generator.println(authors, glm::vec2(-0.7,0),2);
-	std::string instruction = "Press SPACE to continue...";
+	std::string instruction = "Press SPACE to continue and make choices in the game...";
 	menu_generator.println(instruction, glm::vec2(-0.7,-0),3);
 	game.state_init();
 	currState = &game.middle_state_1F;
-
-
-
-	for (auto &transform : scene.transforms)
-	{
-		if (transform.name == "Hip.FL")
-			hip = &transform;
-		else if (transform.name == "UpperLeg.FL")
-			upper_leg = &transform;
-		else if (transform.name == "LowerLeg.FL")
-			lower_leg = &transform;
-	}
-	if (hip == nullptr)
-		throw std::runtime_error("Hip not found.");
-	if (upper_leg == nullptr)
-		throw std::runtime_error("Upper leg not found.");
-	if (lower_leg == nullptr)
-		throw std::runtime_error("Lower leg not found.");
-
-	hip_base_rotation = hip->rotation;
-	upper_leg_base_rotation = upper_leg->rotation;
-	lower_leg_base_rotation = lower_leg->rotation;
 
 	//get pointer to camera for convenience:
 	if (scene.cameras.size() != 1)
 		throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
 	camera = &scene.cameras.front();
 
-	leg_tip_loop = Sound::loop_3D(*dusty_floor_sample, 1.0f, get_leg_tip_position(), 10.0f);
+	leg_tip_loop = Sound::loop_3D(*dusty_floor_sample, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f), 10.0f);
 }
 
 PlayMode::~PlayMode()
@@ -148,6 +126,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			space.pressed = true;
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_RETURN) {
+			std::cout << "hit enter" << "\n";
 			enter.downs += 1;
 			enter.pressed = true;
 			return true;
@@ -217,7 +196,8 @@ void PlayMode::update(float elapsed)
 		std::cout << currState->current_choice << "\n";
 
 	}
-	if (enter.pressed) {
+	if (space.pressed) {
+		cout << "update: enter" << "\n";
 		State nextState = (currState->choose(m));
 		std::cout<<nextState;
 		if (nextState.description != "id") {

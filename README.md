@@ -1,8 +1,8 @@
-# (TODO: your game's title)
+# Demon: A text based adventure
 
-Author: (TODO: your name)
+Author: Lingxi Zhang, Zhengjia Cao
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Design: A text based adventure game with novel plot written by the authors.
 
 Text Drawing: (TODO: how does the text drawing in this game work? Is text precomputed? Rendered at runtime? What files or utilities are involved?)
 
@@ -12,9 +12,13 @@ Screen Shot:
 
 How To Play:
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+Use the `w` and `s` key to make the choices. Confirm your choice with `SPACE` and proceed with the plot.
 
-Sources: (TODO: list a source URL for any assets you did not create yourself. Make sure you have a license for the asset.)
+Sources: 
+
+- Fonts: 
+1. https://www.dafont.com/super-mario-256.font
+
 
 This game was built with [NEST](NEST.md).
 
