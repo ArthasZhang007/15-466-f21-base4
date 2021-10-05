@@ -56,6 +56,9 @@ struct PlayMode : Mode {
 	Story game;
 	State *currState;
 	bool startup = true;
+
+	bool status_init = true;
+	bool status_change = true;
 	int currentSelection = 0; // denote user's selection of choice
 	atr_type m;
 };

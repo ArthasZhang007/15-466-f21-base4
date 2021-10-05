@@ -58,7 +58,7 @@ public:
 
     std::vector<Character> characters;
     std::map<tchar_t, Glyph> Glyph_dict;
-    int font_size = 30;
+    int font_size = 10;
     int line_char = 100;
     GLuint VAO, VBO;
 
