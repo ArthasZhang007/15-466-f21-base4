@@ -336,7 +336,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size)
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glUseProgram(0);
-
 	GL_ERRORS();
 
 }

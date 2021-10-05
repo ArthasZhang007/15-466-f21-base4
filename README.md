@@ -4,7 +4,11 @@ Author: Lingxi Zhang, Zhengjia Cao
 
 Design: A text based adventure game with novel plot written by the authors.
 
-Text Drawing: (TODO: how does the text drawing in this game work? Is text precomputed? Rendered at runtime? What files or utilities are involved?)
+Text Drawing: 
+
+The text drawing in this game is implemented by the text drawing pipeline in the `textgenerator.hpp` and `textgenerator.cpp`. The graphics code for actual text display is in `PlayMode::draw` function.
+
+
 
 Screen Shot:
 
@@ -18,7 +22,8 @@ Sources:
 
 - Fonts: 
 1. https://www.dafont.com/super-mario-256.font
-
+- BGM:
+1. https://www.fesliyanstudios.com/royalty-free-music/downloads-c/8-bit-music/6
 
 This game was built with [NEST](NEST.md).
 
